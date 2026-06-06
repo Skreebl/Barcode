@@ -170,7 +170,7 @@
             
             // Завантаження файлу. Якщо дуже потрібен .gif розширення для обходу обмежень системи, 
             // замініть ".png" на ".gif" у рядку нижче.
-            linkDownload.download = `{trabalhador.replace(/\s+/g, ' ')}.png`;
+            linkDownload.download = `{trabalhador.replace(/\s+/g, '-')}.png`;
             
             document.body.appendChild(linkDownload);
             linkDownload.click();
