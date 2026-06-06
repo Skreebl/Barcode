@@ -1,0 +1,207 @@
+ 
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Código de Barras</title>
+    <!-- Підключення бібліотеки JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Стиль верхньої панелі з годинником, як на фото */
+        #clock-container {
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 15px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        /* Контейнер для форм */
+        .form-container {
+            width: 100%;
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #999;
+            border-radius: 4px;
+            font-size: 16px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        /* Стиль синьої кнопки */
+        button {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:active {
+            background-color: #0b5ed7;
+        }
+
+        /* Прихований canvas для генерації картинки */
+        #barcodeCanvas {
+            display: none;
+        }
+
+        /* Попередній перегляд згенерованого зображення */
+        #previewImage {
+            margin-top: 20px;
+            max-width: 100%;
+            display: none;
+            border: 1px solid #eee;
+        }
+
+        /* Нижній колонтитул */
+        .footer {
+            margin-top: auto;
+            padding: 20px 0;
+            color: #888;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Блок з датою та часом -->
+    <div id="clock-container">
+        <span id="clock">A carregar data...</span>
+    </div>
+
+    <!-- Форма введення -->
+    <div class="form-container">
+        <div class="input-group">
+            <label>Código de Cartão</label>
+            <input type="text" id="codigoInput" placeholder="Ex: 123456789">
+        </div>
+
+        <div class="input-group">
+            <label>Trabalhador</label>
+            <input type="text" id="trabalhadorInput" placeholder="Ex: Nome do Trabalhador">
+        </div>
+
+        <button onclick="gerarEBaixarImagem()">Gerar e Obter Imagem</button>
+    </div>
+
+    <!-- Елементи для обробки зображення -->
+    <canvas id="barcodeCanvas"></canvas>
+    <img id="previewImage" alt="Código de Barras Gerado">
+
+    <!-- Футер -->
+    <div class="footer">
+        Feito por Yurii Ivanytskyi 🤟🏼
+    </div>
+
+    <script>
+        // 1. Скрипт для живого годинника португальською мовою
+        function atualizarRelogio() {
+            const agora = new Date();
+            
+            // Налаштування формату португальською (напр: Sábado, 6 de junho de 2026)
+            const opcoesData = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            let dataFormatada = agora.toLocaleDateString('pt-PT', opcoesData);
+            
+            // Робимо першу літеру дня тижня великою
+            dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+            
+            // Форматуємо час (напр: 10:01:59)
+            const tempoFormatado = agora.toLocaleTimeString('pt-PT');
+
+            document.getElementById('clock').textContent = `${tempoFormatado} - ${dataFormatada}`;
+        }
+        
+        setInterval(atualizarRelogio, 1000);
+        atualizarRelogio(); // Запускаємо одразу
+
+        // 2. Скрипт для генерації штрих-коду та завантаження картинки
+        function gerarEBaixarImagem() {
+            const codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
+            const trabalhador = document.getElementById('trabalhadorInput').value.trim();
+
+            if (!codigo) {
+                alert('Por favor, insira o Código de Cartão.');
+                return;
+            }
+
+            const canvas = document.getElementById('barcodeCanvas');
+
+            // Генеруємо штрих-код на прихованому Canvas
+            // Використовуємо формат CODE39 та підставляємо текст з поля Trabalhador
+            JsBarcode(canvas, codigo, {
+                format: "CODE39",
+                text: trabalhador || codigo, // Якщо працівник не вказаний, покаже код
+                displayValue: true,
+                fontSize: 22,
+                fontOptions: "bold",
+                margin: 20,
+                background: "#ffffff",
+                lineColor: "#000000"
+            });
+
+            // Конвертуємо Canvas у формат зображення (PNG)
+            const imagemURL = canvas.toDataURL("image/png");
+
+            // Показуємо прев'ю на екрані (опціонально)
+            const imgElement = document.getElementById('previewImage');
+            imgElement.src = imagemURL;
+            imgElement.style.display = "block";
+
+            // Автоматично створюємо посилання для завантаження картинки на телефон/ПК
+            const linkDownload = document.createElement('a');
+            linkDownload.href = imagemURL;
+            linkDownload.download = `Cartao_${trabalhador.replace(/\s+/g, '_') || codigo}.png`;
+            
+            // Симулюємо клік для старту завантаження
+            document.body.appendChild(linkDownload);
+            linkDownload.click();
+            document.body.removeChild(linkDownload);
+        }
+    </script>
+
+</body>
+</html>
