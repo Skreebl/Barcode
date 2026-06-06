@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Código de Barras</title>
+    <title>Gerador de Códigos de Barras</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
     <style>
         body {
@@ -86,11 +86,12 @@
             background-color: #0b5ed7;
         }
 
-        /* Стиль для кнопки завантаження */
         #btnDownload {
-            background-color: #198754; /* Зелений колір */
-            display: none; /* Прихована за замовчуванням */
+            background-color: #198754; 
+            display: none; 
             margin-top: 20px;
+            width: 100%;
+            max-width: 350px;
         }
 
         #btnDownload:active {
@@ -126,7 +127,7 @@
         <p>Preencha todos os campos para obter o seu código.</p>
     </div>
 
-        <div class="form-container">
+    <div class="form-container">
         <div class="input-group">
             <label>Código</label>
             <input type="text" id="codigoInput" placeholder="Ex: 12345ABC">
@@ -140,16 +141,10 @@
         <button onclick="gerarPreVisualizacao()">Gerar Pré-visualização</button>
     </div>
 
-        <!-- Кнопка для генерації прев'ю -->
-        <button onclick="gerarPreVisualizacao()">Gerar Pré-visualização</button>
-    </div>
-
     <canvas id="barcodeCanvas"></canvas>
     
-    <!-- Картинка для попереднього перегляду -->
     <img id="previewImage" alt="Código de Barras Gerado">
 
-    <!-- Кнопка для завантаження (з'явиться після прев'ю) -->
     <button id="btnDownload" onclick="baixarImagem()">Descarregar Imagem</button>
 
     <div class="footer">
@@ -157,7 +152,6 @@
     </div>
 
     <script>
-        // Змінна для зберігання згенерованої картинки
         let imagemURLAtual = "";
 
         function gerarPreVisualizacao() {
@@ -184,15 +178,12 @@
                 lineColor: "#000000"
             });
 
-            // Зберігаємо картинку у пам'ять
             imagemURLAtual = canvas.toDataURL("image/png");
 
-            // Виводимо картинку на екран
             const imgElement = document.getElementById('previewImage');
             imgElement.src = imagemURLAtual;
             imgElement.style.display = "block";
 
-            // Показуємо зелену кнопку для завантаження
             document.getElementById('btnDownload').style.display = "block";
         }
 
@@ -201,7 +192,7 @@
             const nomeLimpo = trabalhador.replace(/_/g, ' ');
             
             const linkDownload = document.createElement('a');
-            linkDownload.href = imagemURLAtual; // Беремо вже готову картинку
+            linkDownload.href = imagemURLAtual; 
             linkDownload.download = `${nomeLimpo}.png`;
             
             document.body.appendChild(linkDownload);
