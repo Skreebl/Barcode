@@ -136,37 +136,50 @@
     </div>
 
     <script>
-        function gerarEBaixarImagem() {
-            const codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
-            const trabalhador = document.getElementById('trabalhadorInput').value.trim();
+   function gerarEBaixarImagem() {
+    const codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
+    const trabalhador = document.getElementById('trabalhadorInput').value.trim();
 
-            // Перевірка, чи заповнені обидва поля
-            if (!codigo || !trabalhador) {
-                alert('Por favor, preencha todos os campos.'); 
-                return;
-            }
+    if (!codigo || !trabalhador) {
+        alert('Por favor, preencha todos os campos.'); 
+        return;
+    }
 
-            const canvas = document.getElementById('barcodeCanvas');
+    const canvas = document.getElementById('barcodeCanvas');
 
-            JsBarcode(canvas, codigo, {
-                format: "CODE39",
-                text: trabalhador, 
-                displayValue: true,
-                fontSize: 22,
-                fontOptions: "bold",
-                margin: 20,
-                background: "#ffffff",
-                lineColor: "#000000"
-            });
+    JsBarcode(canvas, codigo, {
+        format: "CODE39",
+        text: trabalhador, 
+        displayValue: true,
+        margin: 0,         
+        width: 3,          
+        height: 120,       
+        fontSize: 22,      
+        fontOptions: "bold",
+        background: "#ffffff",
+        lineColor: "#000000"
+    });
 
-            const imagemURL = canvas.toDataURL("image/png");
+    const imagemURL = canvas.toDataURL("image/png");
 
-            const imgElement = document.getElementById('previewImage');
-            imgElement.src = imagemURL;
-            imgElement.style.display = "block";
+    const imgElement = document.getElementById('previewImage');
+    imgElement.src = imagemURL;
+    imgElement.style.display = "block";
 
-            const linkDownload = document.createElement('a');
-            linkDownload.href = imagemURL;
+    const linkDownload = document.createElement('a');
+    linkDownload.href = imagemURL;
+    
+    // --- ТУТ МИ ВИЧИЩАЄМО ЗНАКИ "_" ---
+    // Скрипт знаходить усі підкреслення в імені й міняє їх на звичайні пробіли
+    const nomeLimpo = trabalhador.replace(/_/g, ' ');
+    
+    linkDownload.download = `${nomeLimpo}.png`;
+    
+    document.body.appendChild(linkDownload);
+    linkDownload.click();
+    document.body.removeChild(linkDownload);
+}
+
             
             // Завантаження файлу. Якщо дуже потрібен .gif розширення для обходу обмежень системи, 
             // замініть ".png" на ".gif" у рядку нижче.
