@@ -17,7 +17,6 @@
             min-height: 100vh;
         }
 
-        /* Стиль для нового заголовка */
         .header-container {
             text-align: center;
             margin-bottom: 30px;
@@ -80,10 +79,22 @@
             margin-top: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             font-weight: bold;
+            transition: background-color 0.2s;
         }
 
         button:active {
             background-color: #0b5ed7;
+        }
+
+        /* Стиль для кнопки завантаження */
+        #btnDownload {
+            background-color: #198754; /* Зелений колір */
+            display: none; /* Прихована за замовчуванням */
+            margin-top: 20px;
+        }
+
+        #btnDownload:active {
+            background-color: #157347;
         }
 
         #barcodeCanvas {
@@ -96,6 +107,7 @@
             display: none;
             border: 1px solid #eee;
             border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .footer {
@@ -114,72 +126,88 @@
         <p>Preencha todos os campos para obter o seu código.</p>
     </div>
 
-    <div class="form-container">
+        <div class="form-container">
         <div class="input-group">
             <label>Código</label>
-            <input type="text" id="codigoInput" placeholder="Ex: 123456789">
+            <input type="text" id="codigoInput" placeholder="Ex: 12345ABC">
         </div>
 
         <div class="input-group">
-            <label>Texto</label>
-            <input type="text" id="trabalhadorInput" placeholder="Ex: Nome do Trabalhador">
+            <label>Descrição</label>
+            <input type="text" id="trabalhadorInput" placeholder="Ex: Nome, Produto ou Peça">
         </div>
 
-        <button onclick="gerarEBaixarImagem()">Gerar e Obter Imagem</button>
+        <button onclick="gerarPreVisualizacao()">Gerar Pré-visualização</button>
+    </div>
+
+        <!-- Кнопка для генерації прев'ю -->
+        <button onclick="gerarPreVisualizacao()">Gerar Pré-visualização</button>
     </div>
 
     <canvas id="barcodeCanvas"></canvas>
+    
+    <!-- Картинка для попереднього перегляду -->
     <img id="previewImage" alt="Código de Barras Gerado">
+
+    <!-- Кнопка для завантаження (з'явиться після прев'ю) -->
+    <button id="btnDownload" onclick="baixarImagem()">Descarregar Imagem</button>
 
     <div class="footer">
         Feito por Yurii Ivanytskyi 🤟🏼
     </div>
 
     <script>
-   function gerarEBaixarImagem() {
-    const codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
-    const trabalhador = document.getElementById('trabalhadorInput').value.trim();
+        // Змінна для зберігання згенерованої картинки
+        let imagemURLAtual = "";
 
-    if (!codigo || !trabalhador) {
-        alert('Por favor, preencha todos os campos.'); 
-        return;
-    }
+        function gerarPreVisualizacao() {
+            const codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
+            const trabalhador = document.getElementById('trabalhadorInput').value.trim();
 
-    const canvas = document.getElementById('barcodeCanvas');
+            if (!codigo || !trabalhador) {
+                alert('Por favor, preencha todos os campos.'); 
+                return;
+            }
 
-    JsBarcode(canvas, codigo, {
-        format: "CODE39",
-        text: trabalhador, 
-        displayValue: true,
-        margin: 15,         
-        width: 3,          
-        height: 120,       
-        fontSize: 22,      
-        fontOptions: "bold",
-        background: "#ffffff",
-        lineColor: "#000000"
-    });
+            const canvas = document.getElementById('barcodeCanvas');
 
-    const imagemURL = canvas.toDataURL("image/png");
+            JsBarcode(canvas, codigo, {
+                format: "CODE39",
+                text: trabalhador, 
+                displayValue: true,
+                margin: 0,         
+                width: 3,          
+                height: 120,       
+                fontSize: 22,      
+                fontOptions: "bold",
+                background: "#ffffff",
+                lineColor: "#000000"
+            });
 
-    const imgElement = document.getElementById('previewImage');
-    imgElement.src = imagemURL;
-    imgElement.style.display = "block";
+            // Зберігаємо картинку у пам'ять
+            imagemURLAtual = canvas.toDataURL("image/png");
 
-    const linkDownload = document.createElement('a');
-    linkDownload.href = imagemURL;
-    
-    // --- ТУТ МИ ВИЧИЩАЄМО ЗНАКИ "_" ---
-    // Скрипт знаходить усі підкреслення в імені й міняє їх на звичайні пробіли
-    const nomeLimpo = trabalhador.replace(/_/g, ' ');
-    
-    linkDownload.download = `${nomeLimpo}.png`;
-    
-    document.body.appendChild(linkDownload);
-    linkDownload.click();
-    document.body.removeChild(linkDownload);
-}
+            // Виводимо картинку на екран
+            const imgElement = document.getElementById('previewImage');
+            imgElement.src = imagemURLAtual;
+            imgElement.style.display = "block";
 
+            // Показуємо зелену кнопку для завантаження
+            document.getElementById('btnDownload').style.display = "block";
+        }
+
+        function baixarImagem() {
+            const trabalhador = document.getElementById('trabalhadorInput').value.trim();
+            const nomeLimpo = trabalhador.replace(/_/g, ' ');
+            
+            const linkDownload = document.createElement('a');
+            linkDownload.href = imagemURLAtual; // Беремо вже готову картинку
+            linkDownload.download = `${nomeLimpo}.png`;
+            
+            document.body.appendChild(linkDownload);
+            linkDownload.click();
+            document.body.removeChild(linkDownload);
+        }
     </script>
 
 </body>
